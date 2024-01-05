@@ -1,0 +1,6 @@
+- name: Install InfluxDB
+  ansible.builtin.import_tasks: install.yaml
+  become: true
+
+- name: Setup InfluxDB
+  ansible.builtin.import_tasks: setup.yaml

@@ -1,0 +1,9 @@
+influxdb_version: "latest"
+influxdb_allow_downgrade: true
+
+influxdb_admin_name: "admin"
+influxdb_admin_pass: "Admin#123"
+influxdb_admin_token: "1234567890"
+
+influxdb_default_org: "nms"
+influxdb_default_bucket: "default"

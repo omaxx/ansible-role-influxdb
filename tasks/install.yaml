@@ -1,0 +1,46 @@
+- name: Install dependent packages
+  ansible.builtin.apt:
+    name: "{{ package }}"
+    update_cache: yes
+    cache_valid_time: 86400
+  loop:
+    - apt-transport-https
+    - software-properties-common
+    - gnupg2
+  loop_control:
+    loop_var: package
+
+- name: Import InfluxDB GPG signing key
+  ansible.builtin.apt_key:
+    url: https://repos.influxdata.com/influxdata-archive_compat.key
+    keyring: /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg
+
+- name: Add InfluxDB repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main"
+    update_cache: true
+
+- name: Install latest version of InfluxDB
+  ansible.builtin.apt:
+    name: "influxdb2"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+    allow_downgrade: "{{ influxdb_allow_downgrade }}"
+  when: influxdb_version == "latest"
+  notify: Restart InfluxDB
+
+- name: Install specific version of InfluxDB
+  ansible.builtin.apt:
+    name: "influxdb2={{ influxdb_version }}"
+    update_cache: yes
+    cache_valid_time: 86400
+    allow_downgrade: "{{ influxdb_allow_downgrade }}"
+  when: influxdb_version != "latest"
+  notify: Restart InfluxDB
+
+- name: Start and enable InfluxDB
+  ansible.builtin.service:
+    name: influxdb
+    state: started
+    enabled: yes

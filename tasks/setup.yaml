@@ -1,0 +1,16 @@
+- name: Check if InfluxDB config exist
+  ansible.builtin.command: "influx config ls --json"
+  changed_when: false
+  register: influx_config
+
+- name: Setup InfluxDB
+  ansible.builtin.command: >
+    influx setup
+      -u {{ influxdb_admin_name }}
+      -p {{ influxdb_admin_pass }}
+      -t {{ influxdb_admin_token }}
+      -o {{ influxdb_default_org }}
+      -b {{ influxdb_default_bucket }}
+      -r 0
+      -f
+  when: "( influx_config.stdout | from_json ) == {}"
